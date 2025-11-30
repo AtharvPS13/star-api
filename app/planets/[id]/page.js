@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
+import { getPlanetImage } from "../getPlanetImage";
 
 export default async function PlanetDetailPage({ params }) {
   const { id } = await params;
@@ -15,6 +17,7 @@ export default async function PlanetDetailPage({ params }) {
       surface_temp,
       radius,
       age,
+      planet_type,
       galaxy_id,
       galaxies (
         galaxy_id,
@@ -36,17 +39,26 @@ export default async function PlanetDetailPage({ params }) {
       
       <div className="max-w-4xl mx-auto">
         <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
-          <div className="h-64 bg-gradient-to-br from-blue-900 to-cyan-800 flex items-center justify-center">
-            <span className="text-4xl font-bold text-gray-300">
-              {planet.name}
-            </span>
+          <div className="h-64 relative overflow-hidden">
+            <Image
+              src={getPlanetImage(planet.planet_type)}
+              alt={planet.name}
+              fill
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent flex items-end">
+              <h1 className="text-4xl font-bold text-white p-6">{planet.name}</h1>
+            </div>
           </div>
 
           <div className="p-8">
-            <h1 className="text-4xl font-bold mb-6">{planet.name}</h1>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="space-y-3">
+                <div>
+                  <span className="text-gray-500 text-sm uppercase tracking-wider">Type</span>
+                  <p className="text-xl">{planet.planet_type || 'N/A'}</p>
+                </div>
                 <div>
                   <span className="text-gray-500 text-sm uppercase tracking-wider">Mass</span>
                   <p className="text-xl">{planet.mass ? `${planet.mass} kg` : 'N/A'}</p>

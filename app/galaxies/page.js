@@ -1,5 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import Image from "next/image";
+import { getGalaxyImage } from "./getGalaxyImage";
 
 export default async function GalaxiesPage() {
   const { data: galaxies, error } = await supabase
@@ -27,10 +29,13 @@ export default async function GalaxiesPage() {
         {galaxies?.map((galaxy) => (
           <Link key={galaxy.galaxy_id} href={`/galaxies/${galaxy.galaxy_id}`}>
             <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden hover:shadow-purple-500/50 hover:shadow-lg transition-all duration-300 cursor-pointer h-full">
-              <div className="h-48 bg-gradient-to-br from-indigo-900 to-purple-800 flex items-center justify-center">
-                <span className="text-gray-400 italic">
-                  {galaxy.name}
-                </span>
+              <div className="h-48 relative overflow-hidden">
+                <Image
+                  src={getGalaxyImage(galaxy.type)}
+                  alt={galaxy.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
               <div className="p-5">
                 <h2 className="text-2xl font-bold mb-2">{galaxy.name}</h2>

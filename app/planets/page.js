@@ -1,5 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import Image from "next/image";
+import { getPlanetImage } from "./getPlanetImage";
 
 export default async function PlanetsPage() {
   const { data: planets, error } = await supabase
@@ -8,7 +10,8 @@ export default async function PlanetsPage() {
       planet_id,
       name,
       moon_no,
-      mass
+      mass,
+      planet_type
     `);
 
   if (error) {
@@ -27,18 +30,18 @@ export default async function PlanetsPage() {
         {planets?.map((planet) => (
           <Link key={planet.planet_id} href={`/planets/${planet.planet_id}`}>
             <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden hover:shadow-blue-500/50 hover:shadow-lg transition-all duration-300 cursor-pointer h-full">
-              <div className="h-48 bg-gradient-to-br from-blue-900 to-cyan-800 flex items-center justify-center">
-                <span className="text-gray-400 italic">
-                  {planet.name}
-                </span>
+              <div className="h-48 relative overflow-hidden">
+                <Image
+                  src={getPlanetImage(planet.planet_type)}
+                  alt={planet.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
               <div className="p-5">
                 <h2 className="text-2xl font-bold mb-2">{planet.name}</h2>
-                <p className="text-gray-400">
-                  <span className="text-gray-500">Moons:</span> {planet.moon_no || 0}
-                </p>
                 <p className="text-gray-400 mt-1">
-                  <span className="text-gray-500">Mass:</span> {planet.mass ? `${planet.mass} kg` : 'N/A'}
+                  <span className="text-gray-500">Type:</span> {planet.planet_type && planet.planet_id != "Placeholder Object" ? `${planet.planet_type}` : 'No type assigned'}
                 </p>
               </div>
             </div>

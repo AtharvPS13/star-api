@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
+import { getGalaxyImage } from "../getGalaxyImage";
 
 export default async function GalaxyDetailPage({ params }) {
   const { id } = await params;
@@ -40,15 +42,19 @@ export default async function GalaxyDetailPage({ params }) {
       
       <div className="max-w-4xl mx-auto">
         <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
-          <div className="h-64 bg-gradient-to-br from-indigo-900 to-purple-800 flex items-center justify-center">
-            <span className="text-4xl font-bold text-gray-300">
-              {galaxy.name}
-            </span>
+          <div className="h-64 relative overflow-hidden">
+            <Image
+              src={getGalaxyImage(galaxy.type)}
+              alt={galaxy.name}
+              fill
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent flex items-end">
+              <h1 className="text-4xl font-bold text-white p-6">{galaxy.name}</h1>
+            </div>
           </div>
 
           <div className="p-8">
-            <h1 className="text-4xl font-bold mb-6">{galaxy.name}</h1>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="space-y-3">
                 <div>
