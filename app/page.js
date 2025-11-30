@@ -11,11 +11,28 @@ export default function Home() {
           Discover the wonders of the universe, from distant galaxies to
           mesmerizing constellations.
         </p>
-        <Link href="/constellations">
-          <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-4 px-8 rounded-full shadow-lg transform transition hover:scale-105">
-            Explore Constellations
-          </button>
-        </Link>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Link href="/galaxies">
+            <button className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-4 px-8 rounded-full shadow-lg transform transition hover:scale-105">
+              Explore Galaxies
+            </button>
+          </Link>
+          <Link href="/stars">
+            <button className="bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white font-semibold py-4 px-8 rounded-full shadow-lg transform transition hover:scale-105">
+              Explore Stars
+            </button>
+          </Link>
+          <Link href="/planets">
+            <button className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-4 px-8 rounded-full shadow-lg transform transition hover:scale-105">
+              Explore Planets
+            </button>
+          </Link>
+          <Link href="/constellations">
+            <button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-4 px-8 rounded-full shadow-lg transform transition hover:scale-105">
+              Explore Constellations
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   );
