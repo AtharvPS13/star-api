@@ -1,9 +1,19 @@
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
+import { getConstellationImage } from "../getConstellationImage";
 
 export default async function ConstellationDetailPage({ params }) {
   const { id } = await params;
+  
+  // First, get all constellations to find the index
+  const { data: allConstellations } = await supabase
+    .from("constellation")
+    .select('id')
+    .order('id');
+  
+  const constellationIndex = allConstellations?.findIndex(c => c.id === parseInt(id)) ?? -1;
   
   const { data: constellation, error } = await supabase
     .from("constellation")
@@ -33,10 +43,16 @@ export default async function ConstellationDetailPage({ params }) {
       
       <div className="max-w-4xl mx-auto">
         <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
-          <div className="h-64 bg-gradient-to-br from-indigo-900 to-purple-800 flex items-center justify-center">
-            <span className="text-4xl font-bold text-gray-300">
-              {constellation.name}
-            </span>
+          <div className="h-64 relative overflow-hidden bg-gradient-to-br from-indigo-900 to-purple-800">
+            <Image
+              src={getConstellationImage(constellationIndex)}
+              alt={constellation.name}
+              fill
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent flex items-end">
+              <h1 className="text-4xl font-bold text-white p-6">{constellation.name}</h1>
+            </div>
           </div>
 
           <div className="p-8">
