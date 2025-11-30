@@ -1,4 +1,3 @@
-// List of available constellation images
 const constellationImages = [
   '/images/constellations/WhatsApp Image 2025-11-30 at 21.45.00.jpeg',
   '/images/constellations/WhatsApp Image 2025-11-30 at 21.45.27.jpeg',
@@ -14,10 +13,9 @@ const constellationImages = [
 
 export function getConstellationImage(index) {
   if (index === undefined || index === null) {
-    return constellationImages[0]; // default
+    return constellationImages[0]; 
   }
   
-  // Use modulo to cycle through available images
   const imageIndex = index % constellationImages.length;
   return constellationImages[imageIndex];
 }
