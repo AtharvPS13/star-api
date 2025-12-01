@@ -128,7 +128,7 @@ export default async function PlanetDetailPage({ params }) {
                 </div>
                 <div>
                   <span className="text-gray-500 text-sm uppercase tracking-wider">Age</span>
-                  <p className="text-xl">{planet.age ? `${planet.age} years` : 'N/A'}</p>
+                  <p className="text-xl">{planet.age ? `${planet.age} billion years` : 'N/A'}</p>
                 </div>
               </div>
             </div>

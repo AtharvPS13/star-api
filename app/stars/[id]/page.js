@@ -89,7 +89,7 @@ export default async function StarDetailPage({ params }) {
                 </div>
                 <div>
                   <span className="text-gray-500 text-sm uppercase tracking-wider">Mass</span>
-                  <p className="text-xl">{star.mass ? `${star.mass} kg` : 'N/A'}</p>
+                  <p className="text-xl">{star.mass ? `${star.mass} solar mass` : 'N/A'}</p>
                 </div>
               </div>
               <div className="space-y-3">
@@ -103,7 +103,7 @@ export default async function StarDetailPage({ params }) {
                 </div>
                 <div>
                   <span className="text-gray-500 text-sm uppercase tracking-wider">Age</span>
-                  <p className="text-xl">{star.age ? `${star.age} years` : 'N/A'}</p>
+                  <p className="text-xl">{star.age ? `${star.age} billion years` : 'N/A'}</p>
                 </div>
                 <div>
                   <span className="text-gray-500 text-sm uppercase tracking-wider">Discovered</span>

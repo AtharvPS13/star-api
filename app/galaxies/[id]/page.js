@@ -88,7 +88,7 @@ export default async function GalaxyDetailPage({ params }) {
                 </div>
                 <div>
                   <span className="text-gray-500 text-sm uppercase tracking-wider">Age</span>
-                  <p className="text-xl">{galaxy.age ? `${galaxy.age} years` : 'N/A'}</p>
+                  <p className="text-xl">{galaxy.age ? `${galaxy.age} billion years` : 'N/A'}</p>
                 </div>
               </div>
             </div>
