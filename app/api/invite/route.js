@@ -22,7 +22,6 @@ export async function POST(request) {
 
     if (error) throw error;
 
-    // Optional: If you need to update a separate profiles table
     if (data.user) {
       const { error: profileError } = await supabaseAdmin
         .from("profiles")
