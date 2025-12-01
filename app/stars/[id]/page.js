@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import StarSystemSimulation from "@/components/StarSystemSimulation";
+import { formatNumber } from "@/lib/formatNumber";
 
 export default async function StarDetailPage({ params }) {
   const { id } = await params;
@@ -45,7 +46,6 @@ export default async function StarDetailPage({ params }) {
 
   return (
     <div className="p-10 bg-gray-900 min-h-screen text-white">
-      {/* Breadcrumbs */}
       <nav className="text-sm text-gray-400 mb-8 flex items-center space-x-2">
         <Link href="/" className="hover:text-yellow-400 transition">
           Universe
@@ -98,7 +98,7 @@ export default async function StarDetailPage({ params }) {
                     Distance
                   </span>
                   <p className="text-xl">
-                    {star.distance ? `${star.distance} light years` : "N/A"}
+                    {star.distance ? `${formatNumber(star.distance)} light years` : "N/A"}
                   </p>
                 </div>
                 <div>
@@ -106,7 +106,7 @@ export default async function StarDetailPage({ params }) {
                     Mass
                   </span>
                   <p className="text-xl">
-                    {star.mass ? `${star.mass} solar mass` : "N/A"}
+                    {star.mass ? `${formatNumber(star.mass)} solar mass` : "N/A"}
                   </p>
                 </div>
               </div>
@@ -142,7 +142,6 @@ export default async function StarDetailPage({ params }) {
               </div>
             </div>
 
-            {/* Constellation Link */}
             {star.constellation && (
               <div className="mt-8">
                 <h2 className="text-2xl font-bold mb-4">Constellation</h2>

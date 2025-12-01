@@ -21,7 +21,6 @@ export default async function SearchPage({ searchParams }) {
     );
   }
 
-  // Fetch stars
   const { data: stars, error: starsError } = await supabase
     .from("stars")
     .select(`
@@ -33,7 +32,6 @@ export default async function SearchPage({ searchParams }) {
     .ilike("name", `%${query}%`)
     .limit(6);
 
-  // Fetch constellations
   const { data: constellations, error: constellationsError } = await supabase
     .from("constellation")
     .select(`
@@ -44,7 +42,6 @@ export default async function SearchPage({ searchParams }) {
     .ilike("name", `%${query}%`)
     .limit(6);
 
-  // Fetch galaxies
   const { data: galaxies, error: galaxiesError } = await supabase
     .from("galaxies")
     .select(`
@@ -56,7 +53,6 @@ export default async function SearchPage({ searchParams }) {
     .ilike("name", `%${query}%`)
     .limit(6);
 
-  // Fetch planets
   const { data: planets, error: planetsError } = await supabase
     .from("planets")
     .select(`
@@ -69,7 +65,6 @@ export default async function SearchPage({ searchParams }) {
     .ilike("name", `%${query}%`)
     .limit(6);
 
-  // Get all constellations for index calculation
   const { data: allConstellations } = await supabase
     .from("constellation")
     .select('id')
@@ -81,7 +76,6 @@ export default async function SearchPage({ searchParams }) {
         Search Results for "{query}"
       </h1>
 
-      {/* Stars Row */}
       <div className="mb-12">
         <h2 className="text-2xl font-bold mb-6 text-yellow-400">Stars</h2>
         {starsError ? (
@@ -114,7 +108,6 @@ export default async function SearchPage({ searchParams }) {
         )}
       </div>
 
-      {/* Constellations Row */}
       <div className="mb-12">
         <h2 className="text-2xl font-bold mb-6 text-pink-400">Constellations</h2>
         {constellationsError ? (
@@ -155,7 +148,6 @@ export default async function SearchPage({ searchParams }) {
         )}
       </div>
 
-      {/* Galaxies Row */}
       <div className="mb-12">
         <h2 className="text-2xl font-bold mb-6 text-purple-400">Galaxies</h2>
         {galaxiesError ? (
@@ -188,7 +180,6 @@ export default async function SearchPage({ searchParams }) {
         )}
       </div>
 
-      {/* Planets Row */}
       <div className="mb-12">
         <h2 className="text-2xl font-bold mb-6 text-blue-400">Planets</h2>
         {planetsError ? (

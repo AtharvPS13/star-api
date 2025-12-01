@@ -4,6 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getGalaxyImage } from "../getGalaxyImage";
 import GalaxySystemSimulation from "@/components/GalaxySystemSimulation";
+import { formatNumber } from "@/lib/formatNumber";
 
 export default async function GalaxyDetailPage({ params }) {
   const { id } = await params;
@@ -39,7 +40,6 @@ export default async function GalaxyDetailPage({ params }) {
 
   return (
     <div className="p-10 bg-gray-900 min-h-screen text-white">
-      {/* Breadcrumbs */}
       <nav className="text-sm text-gray-400 mb-8 flex items-center space-x-2">
         <Link href="/" className="hover:text-purple-400 transition">
           Universe
@@ -53,12 +53,6 @@ export default async function GalaxyDetailPage({ params }) {
       <div className="max-w-4xl mx-auto">
         <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
           <div className="h-64 relative overflow-hidden">
-            {/* <Image
-              src={getGalaxyImage(galaxy.type)}
-              alt={galaxy.name}
-              fill
-              className="object-cover"
-            /> */}
             <GalaxySystemSimulation galaxyData={galaxy} />
             <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent flex items-end">
               <h1 className="text-4xl font-bold text-white p-6">
@@ -81,7 +75,7 @@ export default async function GalaxyDetailPage({ params }) {
                     Distance
                   </span>
                   <p className="text-xl">
-                    {galaxy.distance ? `${galaxy.distance} light years` : "N/A"}
+                    {galaxy.distance ? `${formatNumber(galaxy.distance)} light years` : "N/A"}
                   </p>
                 </div>
                 <div>
@@ -89,7 +83,7 @@ export default async function GalaxyDetailPage({ params }) {
                     Mass
                   </span>
                   <p className="text-xl">
-                    {galaxy.mass ? `${galaxy.mass} kg` : "N/A"}
+                    {galaxy.mass ? `${formatNumber(galaxy.mass)} kg` : "N/A"}
                   </p>
                 </div>
               </div>
@@ -99,7 +93,7 @@ export default async function GalaxyDetailPage({ params }) {
                     Diameter
                   </span>
                   <p className="text-xl">
-                    {galaxy.diameter ? `${galaxy.diameter} km` : "N/A"}
+                    {galaxy.diameter ? `${formatNumber(galaxy.diameter)} km` : "N/A"}
                   </p>
                 </div>
                 <div>
@@ -119,7 +113,6 @@ export default async function GalaxyDetailPage({ params }) {
               </div>
             </div>
 
-            {/* Stars Section */}
             {galaxy.stars && galaxy.stars.length > 0 && (
               <div className="mt-8">
                 <h2 className="text-2xl font-bold mb-4">
@@ -137,7 +130,6 @@ export default async function GalaxyDetailPage({ params }) {
               </div>
             )}
 
-            {/* Planets Section */}
             {galaxy.planets && galaxy.planets.length > 0 && (
               <div className="mt-8">
                 <h2 className="text-2xl font-bold mb-4">

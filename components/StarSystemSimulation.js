@@ -15,17 +15,14 @@ export default function StarSystemSimulation({ starData }) {
     const container = mountRef.current;
     if (!container) return;
 
-    // cleanup any previous canvases (HMR / Fast Refresh safe)
     while (container.firstChild) container.removeChild(container.lastChild);
 
-    // --- SETUP ---
     const width = container.clientWidth || 800;
     const height = container.clientHeight || 600;
 
     const scene = new THREE.Scene();
-    // pure black space background (you asked for black)
     scene.background = new THREE.Color(0x000000);
-    scene.fog = null; // keep space pitch-black
+    scene.fog = null;
 
     const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 2000);
     camera.position.set(0, 50, 90);
@@ -41,7 +38,6 @@ export default function StarSystemSimulation({ starData }) {
     controls.maxDistance = 300;
     controls.minDistance = 20;
 
-    // LIGHTING
     const ambientLight = new THREE.AmbientLight(0x333333, 0.8);
     scene.add(ambientLight);
 
@@ -49,12 +45,10 @@ export default function StarSystemSimulation({ starData }) {
     sunLight.position.set(0, 0, 0);
     scene.add(sunLight);
 
-    // subtle rim light for silhouettes
     const rim = new THREE.DirectionalLight(0x6666ff, 0.06);
     rim.position.set(80, 100, 50);
     scene.add(rim);
 
-    // --- STARFIELD (many small white points) ---
     const starCount = 3000;
     const starPositions = new Float32Array(starCount * 3);
     for (let i = 0; i < starCount; i++) {
@@ -68,7 +62,6 @@ export default function StarSystemSimulation({ starData }) {
     const starField = new THREE.Points(starGeo, starMat);
     scene.add(starField);
 
-    // --- TEXTURE UTILS ---
     const textureCache = new Map();
     const maxAniso = renderer.capabilities.getMaxAnisotropy();
 
@@ -82,7 +75,6 @@ export default function StarSystemSimulation({ starData }) {
     }
 
     function createProceduralTexture(type, colorHex) {
-      // slightly larger texture so highlights read better on planets
       const w = 512;
       const h = 256;
       const key = `${type}_${colorHex}_${w}x${h}`;
@@ -97,9 +89,7 @@ export default function StarSystemSimulation({ starData }) {
         ctx.fillStyle = `#${base.getHexString()}`;
         ctx.fillRect(0, 0, w, h);
 
-        // add brighter highlights to make the planets pop
         if (type === "rocky" || type === "rocky_red") {
-          // light speckles
           for (let i = 0; i < 600; i++) {
             const x = Math.random() * w;
             const y = Math.random() * h;
@@ -109,7 +99,6 @@ export default function StarSystemSimulation({ starData }) {
             ctx.arc(x, y, r, 0, Math.PI * 2);
             ctx.fill();
           }
-          // deeper craters
           for (let i = 0; i < 60; i++) {
             const x = Math.random() * w;
             const y = Math.random() * h;
@@ -124,7 +113,6 @@ export default function StarSystemSimulation({ starData }) {
             ctx.fill();
           }
         } else if (type === "gas") {
-          // horizontal bands (lighter + darker)
           for (let y = 0; y < h; y++) {
             const t = y / h;
             const band = Math.sin(t * Math.PI * 6 + Math.random() * 0.8) * 0.4 + 0.6;
@@ -134,7 +122,6 @@ export default function StarSystemSimulation({ starData }) {
             ctx.fillStyle = `rgb(${r},${g},${b})`;
             ctx.fillRect(0, y, w, 1);
           }
-          // soft highlights
           ctx.globalAlpha = 0.12;
           for (let i = 0; i < 400; i++) {
             const x = Math.random() * w;
@@ -148,7 +135,6 @@ export default function StarSystemSimulation({ starData }) {
           }
           ctx.globalAlpha = 1;
         } else if (type === "star") {
-          // bright center + flares (kept subtle for star surface)
           const g = ctx.createRadialGradient(w / 2, h / 2, 2, w / 2, h / 2, Math.min(w, h) / 1.6);
           g.addColorStop(0, "#fff9e6");
           g.addColorStop(0.15, `#${base.getHexString()}`);
@@ -157,7 +143,6 @@ export default function StarSystemSimulation({ starData }) {
           ctx.fillRect(0, 0, w, h);
         }
 
-        // final subtle noise to avoid flat patches
         const id = ctx.getImageData(0, 0, w, h);
         for (let i = 0; i < id.data.length; i += 4) {
           const n = (Math.random() - 0.5) * 20;
@@ -173,7 +158,6 @@ export default function StarSystemSimulation({ starData }) {
       });
     }
 
-    // little sprite glow for the star (keeps the 'weird' glow effect you liked)
     function makeSunSprite(radius) {
       const size = 512;
       const c = document.createElement("canvas");
@@ -194,7 +178,6 @@ export default function StarSystemSimulation({ starData }) {
       return { sprite, tex, mat };
     }
 
-    // --- DATA MAPPING ---
     const systemData = [
       {
         name: starData.name || "Star",
@@ -230,7 +213,6 @@ export default function StarSystemSimulation({ starData }) {
       if (data.type === "Star") {
         material = new THREE.MeshBasicMaterial({ map: texture });
       } else {
-        // boost brightness with a small emissive tint and slightly lower roughness so highlights read better
         material = new THREE.MeshStandardMaterial({
           map: texture,
           roughness: 0.55,
@@ -245,7 +227,6 @@ export default function StarSystemSimulation({ starData }) {
       const mesh = new THREE.Mesh(geometry, material);
       mesh.userData = { ...data, currentAngle: data.angle || 0 };
 
-      // label
       const labelDiv = document.createElement("div");
       labelDiv.className = "absolute text-xs text-white bg-black/60 px-2 py-1 rounded pointer-events-none select-none whitespace-nowrap z-10";
       labelDiv.style.display = "none";
@@ -257,7 +238,6 @@ export default function StarSystemSimulation({ starData }) {
         mesh.position.set(0, 0, 0);
         scene.add(mesh);
 
-        // keep a subtle sprite glow for the star
         const { sprite, tex, mat } = makeSunSprite(data.radius);
         sprite.position.set(0, 0, 0);
         scene.add(sprite);
@@ -278,7 +258,6 @@ export default function StarSystemSimulation({ starData }) {
       }
     });
 
-    // --- RAYCASTING / INTERACTION ---
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -304,7 +283,6 @@ export default function StarSystemSimulation({ starData }) {
     container.addEventListener("mousemove", onPointerMove);
     container.addEventListener("click", onClick);
 
-    // --- ANIMATION ---
     let reqId;
     const tmpV = new THREE.Vector3();
 
@@ -319,7 +297,6 @@ export default function StarSystemSimulation({ starData }) {
         obj.rotation.y += 0.01;
       });
 
-      // hover detection and cursor
       raycaster.setFromCamera(mouse, camera);
       const hoverHits = raycaster.intersectObjects(celestialObjects);
       if (hoverHits.length > 0) {
@@ -334,7 +311,6 @@ export default function StarSystemSimulation({ starData }) {
         }
       }
 
-      // labels positioned using current container size
       labels.forEach(({ div, mesh, offset }) => {
         tmpV.copy(mesh.position);
         tmpV.y += offset;
@@ -359,7 +335,6 @@ export default function StarSystemSimulation({ starData }) {
 
     animate();
 
-    // --- RESIZE ---
     function handleResize() {
       const w = container.clientWidth;
       const h = container.clientHeight;
@@ -369,14 +344,12 @@ export default function StarSystemSimulation({ starData }) {
     }
     window.addEventListener("resize", handleResize);
 
-    // --- CLEANUP ---
     return () => {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(reqId);
       container.removeEventListener("mousemove", onPointerMove);
       container.removeEventListener("click", onClick);
 
-      // dispose three resources safely
       disposeList.forEach((it) => {
         try {
           if (it && typeof it.dispose === "function") it.dispose();

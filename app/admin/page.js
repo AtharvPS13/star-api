@@ -18,12 +18,10 @@ export default function AdminPage() {
   const [age, setAge] = useState("");
   const [galaxyImg, setGalaxyImg] = useState("");
 
-  // CONSTELLATION STATE
   const [constellationName, setConstellationName] = useState("");
   const [abbreviation, setAbbreviation] = useState("");
   const [constellationImg, setConstellationImg] = useState("");
 
-  // STAR STATE
   const [starName, setStarName] = useState("");
   const [starDistance, setStarDistance] = useState("");
   const [starMass, setStarMass] = useState("");
@@ -37,7 +35,6 @@ export default function AdminPage() {
   const [constellationId, setConstellationId] = useState("");
   const [starImg, setStarImg] = useState("");
 
-  // PLANET STATE
   const [planetName, setPlanetName] = useState("");
   const [moonNo, setMoonNo] = useState("");
   const [planetMass, setPlanetMass] = useState("");
@@ -49,13 +46,11 @@ export default function AdminPage() {
   const [planetType, setPlanetType] = useState("");
   const [planetImg, setPlanetImg] = useState("");
 
-  // Dropdown data
   const [galaxies, setGalaxies] = useState([]);
   const [constellations, setConstellations] = useState([]);
 
   const router = useRouter();
 
-  // 1. Admin check
   useEffect(() => {
     const checkAdmin = async () => {
       const {
@@ -77,7 +72,6 @@ export default function AdminPage() {
 
       setLoading(false);
 
-      // fetch galaxies & constellations for dropdowns
       const { data: galaxyData } = await supabase
         .from("galaxies")
         .select("galaxy_id, name");
@@ -92,7 +86,6 @@ export default function AdminPage() {
     checkAdmin();
   }, [router]);
 
-  // 2. Invite Admin
   const handleInvite = async (e) => {
     e.preventDefault();
     setMessage("Sending invite...");
@@ -110,7 +103,6 @@ export default function AdminPage() {
     } else setMessage(`Error: ${data.error}`);
   };
 
-  // 3. Insert Galaxy
   const handleAddGalaxy = async (e) => {
     e.preventDefault();
     setMessage("Adding galaxy...");
@@ -135,7 +127,6 @@ export default function AdminPage() {
       setType("");
       setAge("");
       setGalaxyImg("");
-      // refresh dropdown
       const { data: galaxyData } = await supabase
         .from("galaxies")
         .select("galaxy_id, name");
@@ -143,7 +134,6 @@ export default function AdminPage() {
     }
   };
 
-  // 4. Insert Constellation
   const handleAddConstellation = async (e) => {
     e.preventDefault();
     setMessage("Adding constellation...");
@@ -158,7 +148,6 @@ export default function AdminPage() {
       setConstellationName("");
       setAbbreviation("");
       setConstellationImg("");
-      // refresh dropdown
       const { data: constellationData } = await supabase
         .from("constellation")
         .select("id, name");
@@ -166,7 +155,6 @@ export default function AdminPage() {
     }
   };
 
-  // 5. Insert Star
   const handleAddStar = async (e) => {
     e.preventDefault();
     setMessage("Adding star...");
@@ -202,7 +190,6 @@ export default function AdminPage() {
     }
   };
 
-  // 6. Insert Planet
   const handleAddPlanet = async (e) => {
     e.preventDefault();
     setMessage("Adding planet...");
@@ -243,7 +230,6 @@ export default function AdminPage() {
         Admin Sanctuary
       </h1>
 
-      {/* Invite Admin */}
       <div className="bg-gray-800 p-8 rounded-xl border border-purple-500/30 w-full max-w-md mb-10">
         <h2 className="text-xl mb-4">Invite New Admin</h2>
         <form onSubmit={handleInvite} className="flex flex-col gap-4">
@@ -264,7 +250,6 @@ export default function AdminPage() {
         </form>
       </div>
 
-      {/* Add Galaxy */}
       <div className="bg-gray-800 p-8 rounded-xl border border-green-500/30 w-full max-w-md mb-10">
         <h2 className="text-xl mb-4">Add New Galaxy</h2>
         <form onSubmit={handleAddGalaxy} className="flex flex-col gap-4">
@@ -334,7 +319,6 @@ export default function AdminPage() {
         </form>
       </div>
 
-      {/* Add Constellation */}
       <div className="bg-gray-800 p-8 rounded-xl border border-indigo-500/30 w-full max-w-md mb-10">
         <h2 className="text-xl mb-4">Add Constellation</h2>
         <form onSubmit={handleAddConstellation} className="flex flex-col gap-4">
@@ -370,7 +354,6 @@ export default function AdminPage() {
         </form>
       </div>
 
-      {/* Add Star */}
       <div className="bg-gray-800 p-8 rounded-xl border border-blue-500/30 w-full max-w-md mb-10">
         <h2 className="text-xl mb-4">Add Star</h2>
         <form onSubmit={handleAddStar} className="flex flex-col gap-4">
@@ -453,7 +436,6 @@ export default function AdminPage() {
             ))}
           </select>
 
-          {/* Constellation Dropdown */}
           <select
             value={constellationId}
             onChange={(e) => setConstellationId(e.target.value)}
@@ -483,7 +465,6 @@ export default function AdminPage() {
         </form>
       </div>
 
-      {/* Add Planet */}
       <div className="bg-gray-800 p-8 rounded-xl border border-yellow-500/30 w-full max-w-md mb-10">
         <h2 className="text-xl mb-4">Add Planet</h2>
         <form onSubmit={handleAddPlanet} className="flex flex-col gap-4">

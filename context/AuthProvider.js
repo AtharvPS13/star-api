@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-// We import the ready-to-use client here
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
 
@@ -12,11 +11,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // DELETE THIS LINE: const supabase = createClient();
-  // We will just use the 'supabase' we imported at the top.
-
   useEffect(() => {
-    // 1. Check active session immediately
     const checkUser = async () => {
       const {
         data: { session },
@@ -27,7 +22,6 @@ export function AuthProvider({ children }) {
 
     checkUser();
 
-    // 2. Set up the Listener
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
@@ -40,7 +34,7 @@ export function AuthProvider({ children }) {
     });
 
     return () => subscription.unsubscribe();
-  }, [router]); // Removed 'supabase' from dependencies since it's imported globally
+  }, [router]);
 
   const signOut = async () => {
     await supabase.auth.signOut();

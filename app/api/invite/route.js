@@ -16,7 +16,6 @@ export async function POST(request) {
   try {
     const { email } = await request.json();
 
-    // FIX: Added '.admin' here. This function lives in the admin namespace.
     const { data, error } =
       await supabaseAdmin.auth.admin.inviteUserByEmail(email);
 
@@ -33,7 +32,7 @@ export async function POST(request) {
 
     return NextResponse.json({ message: "Admin invite sent successfully!" });
   } catch (error) {
-    console.error("Invite Error:", error); // Log it so you can see it in terminal
+    console.error("Invite Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

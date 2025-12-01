@@ -4,14 +4,11 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getPlanetImage } from "../getPlanetImage";
 import PlanetSystemSimulation from "@/components/PlanetSystemSimulation";
+import { formatNumber } from "@/lib/formatNumber";
 
 export default async function PlanetDetailPage({ params }) {
   const { id } = await params;
 
-  // QUERY EXPLANATION:
-  // 1. Fetch planet details.
-  // 2. Fetch 'galaxies' directly (since planet has galaxy_id).
-  // 3. Fetch 'stars' THROUGH the 'star_system' junction table.
   const { data: planet, error } = await supabase
     .from("planets")
     .select(
@@ -37,33 +34,24 @@ export default async function PlanetDetailPage({ params }) {
     notFound();
   }
 
-  // --- DATA UNWRAPPING ---
-
-  // 1. Handle Galaxy (Direct relation)
-  // Supabase might return an object or an array depending on 1:1 or 1:N detection
   const parentGalaxy = Array.isArray(planet.galaxies)
     ? planet.galaxies[0]
     : planet.galaxies;
 
-  // 2. Handle Star (Through 'star_system' junction table)
-  // planet.star_system will be an array like: [ { stars: { id: 1, name: 'Sun' } } ]
   const starSystemData = Array.isArray(planet.star_system)
     ? planet.star_system[0]
     : planet.star_system;
 
-  // Extract the actual star object from inside the junction data
   const parentStar = starSystemData ? starSystemData.stars : null;
 
   return (
     <div className="p-10 bg-gray-900 min-h-screen text-white">
-      {/* Breadcrumbs */}
       <nav className="text-sm text-gray-400 mb-8 flex items-center space-x-2 flex-wrap">
         <Link href="/" className="hover:text-blue-400 transition">
           Universe
         </Link>
         <span>&gt;</span>
 
-        {/* Galaxy Link */}
         {parentGalaxy ? (
           <Link
             href={`/galaxies/${parentGalaxy.galaxy_id}`}
@@ -77,7 +65,6 @@ export default async function PlanetDetailPage({ params }) {
 
         <span>&gt;</span>
 
-        {/* Star Link */}
         {parentStar ? (
           <Link
             href={`/stars/${parentStar.id}`}
@@ -96,12 +83,6 @@ export default async function PlanetDetailPage({ params }) {
       <div className="max-w-4xl mx-auto">
         <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
           <div className="h-64 relative overflow-hidden">
-            {/* <Image
-              src={getPlanetImage(planet.planet_type)}
-              alt={planet.name}
-              fill
-              className="object-cover"
-            /> */}
             <PlanetSystemSimulation planetData={planet} />
             <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent flex items-end">
               <h1 className="text-4xl font-bold text-white p-6">
@@ -124,7 +105,7 @@ export default async function PlanetDetailPage({ params }) {
                     Mass
                   </span>
                   <p className="text-xl">
-                    {planet.mass ? `${planet.mass} kg` : "N/A"}
+                    {planet.mass ? `${formatNumber(planet.mass)} kg` : "N/A"}
                   </p>
                 </div>
                 <div>
@@ -132,7 +113,7 @@ export default async function PlanetDetailPage({ params }) {
                     Radius
                   </span>
                   <p className="text-xl">
-                    {planet.radius ? `${planet.radius} km` : "N/A"}
+                    {planet.radius ? `${formatNumber(planet.radius)} km` : "N/A"}
                   </p>
                 </div>
                 <div>
@@ -162,7 +143,6 @@ export default async function PlanetDetailPage({ params }) {
               </div>
             </div>
 
-            {/* Parent Star Link Section */}
             {parentStar && (
               <div className="mt-8 border-t border-gray-700 pt-6">
                 <h2 className="text-2xl font-bold mb-4">Orbiting Star</h2>

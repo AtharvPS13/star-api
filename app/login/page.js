@@ -15,21 +15,17 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    // 1. The Knock on the Door
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
     });
 
     if (error) {
-      // 2. The Rejection
       setError(error.message);
       setLoading(false);
       return;
     }
 
-    // 3. The Entry
-    // Check if they are admin immediately (Optional "Spicy" check)
     try {
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
@@ -39,15 +35,13 @@ export default function LoginPage() {
 
       if (profileError) {
         console.error("Profile fetch error:", profileError);
-        // If profile doesn't exist, treat as regular user
       }
 
       if (profile?.role === "admin") {
         router.push("/admin"); // Take the King to the throne
       } else {
-        router.push("/"); // Take the peasant to the village
+        router.push("/");
       }
-      // Note: router.push is client-side, so no page reload needed.
     } catch (err) {
       console.error("Login error:", err);
       setError("An error occurred during login. Please try again.");
@@ -66,7 +60,6 @@ export default function LoginPage() {
         </p>
 
         <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          {/* Email Input */}
           <div>
             <label className="block text-xs text-gray-500 uppercase mb-1">
               Email
@@ -81,7 +74,6 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Password Input */}
           <div>
             <label className="block text-xs text-gray-500 uppercase mb-1">
               Password
@@ -96,14 +88,12 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Error Message Display */}
           {error && (
             <div className="bg-red-500/10 border border-red-500/50 text-red-200 text-sm p-3 rounded text-center">
               {error}
             </div>
           )}
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
