@@ -11,10 +11,8 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
     const container = mountRef.current;
     if (!container) return;
 
-    // cleanup previous
     while (container.firstChild) container.removeChild(container.lastChild);
 
-    // --- SETUP ---
     const width = container.clientWidth;
     const height = container.clientHeight;
 
@@ -40,7 +38,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
     controls.minDistance = 12;
     controls.maxDistance = 40;
 
-    // --- LIGHTING ---
     const ambientLight = new THREE.AmbientLight(0x404040, 0.25);
     scene.add(ambientLight);
 
@@ -56,7 +53,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
     rimLight.lookAt(0, 0, 0);
     scene.add(rimLight);
 
-    // --- STARS BACKGROUND ---
     const starGeo = new THREE.BufferGeometry();
     const starCount = 1500;
     const starPos = new Float32Array(starCount * 3);
@@ -66,10 +62,8 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
     const stars = new THREE.Points(starGeo, starMat);
     scene.add(stars);
 
-    // --- RANDOM / SEEDED RNG ---
     function makeRNG(seed) {
       if (seed == null) return () => Math.random();
-      // simple LCG for deterministic variations if seed provided
       let s = typeof seed === 'number' ? seed >>> 0 : hashString(seed);
       return () => {
         s = (1664525 * s + 1013904223) >>> 0;
@@ -84,14 +78,12 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
 
     const rng = makeRNG(planetData.seed ?? undefined);
 
-    // --- COLOR HELPERS ---
     function mixColors(hexA, hexB, t) {
       const a = new THREE.Color(hexA);
       const b = new THREE.Color(hexB);
       return a.lerp(b, t);
     }
     function randomPalette(baseHex) {
-      // return 2-4 complementary variations around the base color
       const base = new THREE.Color(baseHex || 0x8b4513);
       const palette = [base.clone()];
       for (let i = 0; i < 3; i++) {
@@ -104,7 +96,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
       return palette;
     }
 
-    // --- NOISE/PATCH GENERATORS ---
     function splatNoise(ctx, w, h, count, minR, maxR, fillStyleFunc) {
       for (let i = 0; i < count; i++) {
         const x = rng() * w;
@@ -117,12 +108,10 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
       }
     }
 
-    // Simple blit/box blur for small smoothing
     function blurCanvas(srcCanvas, radius = 2) {
       if (radius <= 0) return srcCanvas;
       const w = srcCanvas.width, h = srcCanvas.height;
       const ctx = srcCanvas.getContext('2d');
-      // use canvas filter if available (faster)
       try {
         ctx.filter = `blur(${radius}px)`;
         const tmp = document.createElement('canvas');
@@ -133,12 +122,10 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
         ctx.filter = 'none';
         return tmp;
       } catch (e) {
-        // fallback: return original
         return srcCanvas;
       }
     }
 
-    // Generate a normal map from grayscale height map
     function generateNormalMap(heightCanvas, strength = 1.0) {
       const w = heightCanvas.width, h = heightCanvas.height;
       const hctx = heightCanvas.getContext('2d');
@@ -158,11 +145,9 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
           const down = (((y + 1) % h) * w + x) * 4;
           const dx = (lum(right) - lum(left)) * strength;
           const dy = (lum(down) - lum(up)) * strength;
-          // normal vector
           const nz = 1.0 / Math.sqrt(dx * dx + dy * dy + 1);
           const nx = dx * nz;
           const ny = dy * nz;
-          // encode to RGB
           nImg.data[i] = Math.floor((nx * 0.5 + 0.5) * 255);
           nImg.data[i + 1] = Math.floor((ny * 0.5 + 0.5) * 255);
           nImg.data[i + 2] = Math.floor((nz) * 255);
@@ -173,7 +158,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
       return nCanvas;
     }
 
-    // --- TEXTURE: GAS GIANT ---
     function createGasGiantTexture(baseColorHex) {
       const size = 2048; // higher resolution for smoother bands
       const canvas = document.createElement('canvas');
@@ -182,7 +166,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
 
       const palette = randomPalette(baseColorHex || 0xcc9966);
 
-      // Background radial gradient to add slight vignetting
       const grad = ctx.createLinearGradient(0, 0, 0, size);
       const c0 = palette[0].clone().offsetHSL((rng()-0.5)*0.02, 0.02, -0.02);
       grad.addColorStop(0, `#${c0.getHexString()}`);
@@ -191,20 +174,17 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, size, size);
 
-      // Bands: many layered thin gradients with turbulence
       const bandCount = 8 + Math.floor(rng() * 14);
       for (let i = 0; i < bandCount; i++) {
         const y = (i / bandCount) * size;
         const h = (size / bandCount) * (0.5 + rng() * 1.8);
 
-        // choose color between palette choices with a bit of randomness
         const colA = palette[Math.floor(rng() * palette.length)];
         const colB = palette[Math.floor(rng() * palette.length)];
         const g = ctx.createLinearGradient(0, y, 0, y + h);
         g.addColorStop(0, `#${colA.clone().offsetHSL((rng()-0.5)*0.06, (rng()-0.5)*0.1, (rng()-0.5)*0.06).getHexString()}`);
         g.addColorStop(1, `#${colB.clone().offsetHSL((rng()-0.5)*0.06, (rng()-0.5)*0.1, (rng()-0.5)*0.06).getHexString()}`);
 
-        // draw wave path for band with horizontal sinusoidal distortion
         ctx.beginPath();
         const amplitude = 8 + rng() * 28;
         const freq = 0.002 + rng() * 0.01;
@@ -220,7 +200,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
         ctx.fillStyle = g;
         ctx.fill();
 
-        // subtle thin streaks per band
         ctx.beginPath();
         for (let x = 0; x <= size; x += 8) {
           const distortion = Math.sin(x * (freq*1.5) + i) * (amplitude*0.25);
@@ -233,7 +212,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
         ctx.stroke();
       }
 
-      // Storms & spots (contrast spots)
       const storms = 1 + Math.floor(rng()*5);
       for (let s = 0; s < storms; s++) {
         const x = rng() * size;
@@ -250,7 +228,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
         ctx.fill();
       }
 
-      // Grain / final noise
       const img = ctx.getImageData(0, 0, size, size);
       for (let i = 0; i < img.data.length; i += 4) {
         const noise = (rng() - 0.5) * 18;
@@ -260,14 +237,11 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
       }
       ctx.putImageData(img, 0, 0);
 
-      // Roughness map (lighter = rougher)
       const roughCanvas = document.createElement('canvas');
       roughCanvas.width = roughCanvas.height = size;
       const rctx = roughCanvas.getContext('2d');
-      // base roughness
       rctx.fillStyle = '#b0b0b0';
       rctx.fillRect(0,0,size,size);
-      // add streaky gloss lines
       for (let i = 0; i < 400; i++) {
         const y = rng()*size;
         const grad = rctx.createLinearGradient(0, y, size, y+1);
@@ -277,7 +251,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
         rctx.fillStyle = grad;
         rctx.fillRect(0, y, size, 1);
       }
-      // add local shiny spots where storms are
       for (let s = 0; s < storms; s++) {
         const x = rng()*size; const y = rng()*size;
         rctx.beginPath();
@@ -299,7 +272,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
       return { map, roughnessMap: rough, normalMap: normal, roughness: 0.45, metalness: 0.05 };
     }
 
-    // --- TEXTURE: ROCKY PLANET ---
     function createRockyTexture(baseColorHex) {
       const size = 2048;
       const canvas = document.createElement('canvas');
@@ -308,7 +280,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
 
       const palette = randomPalette(baseColorHex || 0x8b4513);
 
-      // Base color + subtle gradient
       const base = palette[0].clone().offsetHSL((rng()-0.5)*0.02, (rng()-0.5)*0.05, (rng()-0.5)*0.04);
       const top = palette[Math.floor(rng()*palette.length)].clone().offsetHSL(0.02, -0.04, 0.06);
       const g = ctx.createLinearGradient(0,0,0,size);
@@ -317,28 +288,24 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
       ctx.fillStyle = g;
       ctx.fillRect(0,0,size,size);
 
-      // Large continent blobs using splats
       splatNoise(ctx, size, size, 1200 + Math.floor(rng()*2000), 6, 120, (x,y,r,i) => {
         const shade = (rng()-0.5) * 0.12;
         const c = palette[Math.floor(rng()*palette.length)].clone().offsetHSL((rng()-0.5)*0.1, (rng()-0.5)*0.2, shade);
         return `rgba(${Math.floor(c.r*255)}, ${Math.floor(c.g*255)}, ${Math.floor(c.b*255)}, ${0.08 + rng()*0.22})`;
       });
 
-      // Craters: darker rings with highlights
       for (let i = 0; i < 120; i++) {
         const x = rng()*size; const y = rng()*size; const r = 6 + rng()*60;
         ctx.beginPath();
         ctx.fillStyle = `rgba(0,0,0,${0.05 + rng()*0.25})`;
         ctx.ellipse(x,y, r, r*0.7, rng()*Math.PI, 0, Math.PI*2);
         ctx.fill();
-        // inner highlight
         ctx.beginPath();
         ctx.fillStyle = `rgba(255,255,255,${0.02 + rng()*0.08})`;
         ctx.ellipse(x - r*0.15, y - r*0.15, r*0.5, r*0.35, rng()*Math.PI, 0, Math.PI*2);
         ctx.fill();
       }
 
-      // Polar caps sometimes
       if (rng() > 0.6) {
         const cap = size * (0.06 + rng()*0.18);
         const topGrad = ctx.createLinearGradient(0,0,0,cap);
@@ -354,7 +321,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
         ctx.fillRect(0, size-cap, size, cap);
       }
 
-      // Add smaller noise and grain
       const img = ctx.getImageData(0,0,size,size);
       for (let i = 0; i < img.data.length; i += 4) {
         const noise = (rng()-0.5) * 10;
@@ -364,16 +330,13 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
       }
       ctx.putImageData(img, 0, 0);
 
-      // Roughness map
       const roughCanvas = document.createElement('canvas');
       roughCanvas.width = roughCanvas.height = size;
       const rctx = roughCanvas.getContext('2d');
       rctx.fillStyle = '#c0c0c0';
       rctx.fillRect(0,0,size,size);
-      // darker valleys = more glossy (lower value in roughness map)
       splatNoise(rctx, size, size, 1200, 4, 40, (x,y,r,i) => `rgba(${120 + Math.floor(rng()*60)}, ${120 + Math.floor(rng()*60)}, ${120 + Math.floor(rng()*60)}, ${0.08 + rng()*0.18})`);
 
-      // Normal map from height
       const normalCanvas = generateNormalMap(canvas, 2.5);
 
       const map = new THREE.CanvasTexture(canvas);
@@ -384,7 +347,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
       const normal = new THREE.CanvasTexture(normalCanvas);
       normal.wrapS = normal.wrapT = THREE.RepeatWrapping;
 
-      // Cloud layer for rocky planets
       let cloud = null;
       if (rng() > 0.45) {
         const cSize = 1024;
@@ -393,7 +355,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
         const cctx = cCanvas.getContext('2d');
         cctx.fillStyle = 'rgba(0,0,0,0)';
         cctx.fillRect(0,0,cSize,cSize);
-        // paint some soft cloud patches
         splatNoise(cctx, cSize, cSize, 220 + Math.floor(rng()*400), 10, 180, (x,y,r,i) => {
           const a = 0.05 + rng()*0.35;
           return `rgba(255,255,255,${a})`;
@@ -406,7 +367,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
       return { map, roughnessMap: rough, normalMap: normal, roughness: 0.9, metalness: 0.02, cloudMap: cloud };
     }
 
-    // --- DECIDE TYPE & CREATE ---
     const typeStr = (planetData.planet_type || "").toLowerCase();
     const isGasGiant = typeStr.includes("gas") || typeStr.includes("jovian") || typeStr.includes("ice") || typeStr.includes("neptunian");
 
@@ -421,7 +381,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
       metalness: textures.metalness ?? 0.03,
       displacementMap: null,
       bumpMap: null,
-      // increase clearcoat to give a slightly glossy finish on gas giants
       clearcoat: isGasGiant ? 0.07 : 0.0,
       clearcoatRoughness: isGasGiant ? 0.4 : 1.0,
     });
@@ -431,7 +390,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
     planetMesh.receiveShadow = true;
     scene.add(planetMesh);
 
-    // atmosphere / cloud layer as a second mesh
     let cloudMesh = null;
     if (!isGasGiant && textures.cloudMap) {
       const cloudGeo = new THREE.SphereGeometry(6.08, 128, 128);
@@ -458,7 +416,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
       scene.add(atmo);
     }
 
-    // --- ANIMATION ---
     let reqId;
     function animate() {
       reqId = requestAnimationFrame(animate);
@@ -469,7 +426,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
     }
     animate();
 
-    // --- RESIZE ---
     function handleResize() {
       const w = container.clientWidth;
       const h = container.clientHeight;
@@ -479,7 +435,6 @@ export default function PlanetSystemSimulation({ planetData = {} }) {
     }
     window.addEventListener('resize', handleResize);
 
-    // --- DISPOSE ---
     return () => {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(reqId);

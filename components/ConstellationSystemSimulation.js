@@ -1,4 +1,3 @@
-// components/ConstellationSystemSimulation.jsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -9,9 +8,6 @@ import Link from "next/link";
 export default function ConstellationSystemSimulation({ stars }) {
   const containerRef = useRef(null);
   const [selectedStar, setSelectedStar] = useState(null);
-  
-  // We remove isHovering state to prevent re-renders of the whole component
-  // which can reset the canvas. We'll handle cursor style directly in JS.
 
   const sizeRef = useRef({ width: 0, height: 0 });
   const rendererRef = useRef(null);
@@ -22,31 +18,26 @@ export default function ConstellationSystemSimulation({ stars }) {
   useEffect(() => {
     if (!containerRef.current || !stars || stars.length === 0) return;
 
-    // --- INIT VARIABLES ---
     const disposables = [];
     const starMeshes = [];
     const labels = [];
     const starPositions = [];
     
-    // --- SETUP SCENE ---
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#050505'); 
     scene.fog = new THREE.FogExp2(0x050505, 0.002);
     sceneRef.current = scene;
 
-    // Camera (Defaults, will be updated by ResizeObserver)
     const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
     camera.position.set(0, 0, 140);
     cameraRef.current = camera;
 
-    // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     containerRef.current.style.position = 'relative'; 
     containerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.enableZoom = true;
@@ -54,7 +45,6 @@ export default function ConstellationSystemSimulation({ stars }) {
     controls.maxDistance = 300;
     controls.minDistance = 20;
 
-    // --- ASSETS ---
     const getGlowTexture = () => {
       const canvas = document.createElement('canvas');
       canvas.width = 32; canvas.height = 32;
@@ -84,14 +74,12 @@ export default function ConstellationSystemSimulation({ stars }) {
       return 0xffffff;
     };
 
-    // --- NORMALIZATION LOGIC ---
     const distances = stars.map(s => s.distance || 1);
     const minDist = Math.min(...distances);
     const maxDist = Math.max(...distances);
     const SCENE_MIN_R = 30;
     const SCENE_MAX_R = 90;
 
-    // --- BUILD OBJECTS ---
     stars.forEach((star) => {
       let r = SCENE_MIN_R; 
       if (maxDist !== minDist) {
@@ -109,7 +97,6 @@ export default function ConstellationSystemSimulation({ stars }) {
       const pos = new THREE.Vector3(x, y, z);
       starPositions.push(pos);
 
-      // Mesh
       const color = getStarColor(star.star_type);
       const geometry = new THREE.SphereGeometry(1.5, 16, 16);
       const material = new THREE.MeshBasicMaterial({ color: color });
@@ -121,7 +108,6 @@ export default function ConstellationSystemSimulation({ stars }) {
       starMeshes.push(mesh);
       disposables.push(geometry, material);
 
-      // Glow Sprite
       const spriteMat = new THREE.SpriteMaterial({ 
         map: glowTexture, 
         color: color, 
@@ -135,7 +121,6 @@ export default function ConstellationSystemSimulation({ stars }) {
       sprite.userData = { ...star };
       disposables.push(spriteMat);
 
-      // Label
       const labelDiv = document.createElement("div");
       labelDiv.className = "absolute top-0 left-0 text-[11px] font-mono text-cyan-200 bg-gray-900/60 border border-gray-700/50 px-2 py-0.5 rounded pointer-events-none select-none z-10 whitespace-nowrap backdrop-blur-[2px]";
       labelDiv.textContent = star.name;
@@ -144,7 +129,6 @@ export default function ConstellationSystemSimulation({ stars }) {
       labels.push({ div: labelDiv, mesh: mesh });
     });
 
-    // Lines
     if (starPositions.length > 1) {
       const lineGeometry = new THREE.BufferGeometry().setFromPoints(starPositions);
       const lineMaterial = new THREE.LineBasicMaterial({ 
@@ -157,13 +141,11 @@ export default function ConstellationSystemSimulation({ stars }) {
       disposables.push(lineGeometry, lineMaterial);
     }
 
-    // --- INTERACTION ---
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     raycaster.params.Points.threshold = 5;
 
     const handleMouseMove = (event) => {
-      // Safety check if renderer or container is gone
       if (!containerRef.current) return;
 
       const rect = containerRef.current.getBoundingClientRect();
@@ -195,15 +177,10 @@ export default function ConstellationSystemSimulation({ stars }) {
     containerRef.current.addEventListener('mousemove', handleMouseMove);
     containerRef.current.addEventListener('click', handleClick);
 
-
-    // --- RESIZE OBSERVER (FIX FOR FREEZING) ---
-    // Instead of relying on window 'resize', we watch the container div directly.
-    // This triggers when the div first gets its layout dimensions.
     const resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
         const { width, height } = entry.contentRect;
         
-        // Prevent 0 size errors
         if (width === 0 || height === 0) return;
 
         sizeRef.current = { width, height };
@@ -218,7 +195,6 @@ export default function ConstellationSystemSimulation({ stars }) {
     
     resizeObserver.observe(containerRef.current);
 
-    // --- ANIMATION LOOP ---
     const tempV = new THREE.Vector3();
 
     const animate = () => {
@@ -227,7 +203,6 @@ export default function ConstellationSystemSimulation({ stars }) {
 
       const { width, height } = sizeRef.current;
       
-      // Don't render if size is invalid
       if (width === 0 || height === 0) return;
 
       const halfWidth = width / 2;
@@ -253,7 +228,6 @@ export default function ConstellationSystemSimulation({ stars }) {
     
     animate();
 
-    // --- CLEANUP ---
     return () => {
       if (reqIdRef.current) cancelAnimationFrame(reqIdRef.current);
       resizeObserver.disconnect();
@@ -265,7 +239,6 @@ export default function ConstellationSystemSimulation({ stars }) {
       }
       disposables.forEach(obj => obj.dispose());
       renderer.dispose();
-      // Reset cursor
       document.body.style.cursor = 'default';
     };
   }, [stars]);
@@ -274,7 +247,6 @@ export default function ConstellationSystemSimulation({ stars }) {
     <div className="relative w-full h-full group">
       <div ref={containerRef} className="w-full h-full relative overflow-hidden" />
 
-      {/* Selected Star Popup */}
       {selectedStar && (
         <div className="absolute top-4 right-4 w-64 bg-gray-900/90 backdrop-blur border border-purple-500/50 rounded-lg p-5 text-white z-20 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
           <button 

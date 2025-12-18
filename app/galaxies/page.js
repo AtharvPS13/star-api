@@ -42,9 +42,6 @@ export default async function GalaxiesPage() {
                 <p className="text-gray-400">
                   <span className="text-gray-500">Type:</span> {galaxy.type || 'N/A'}
                 </p>
-                {/* <p className="text-gray-400 mt-1">
-                  <span className="text-gray-500">Stars:</span> {galaxy.star_num || 0}
-                </p> */}
               </div>
             </div>
           </Link>

@@ -20,14 +20,12 @@ export default function Navbar() {
     }
   };
 
-  // Helper to close dropdown when a link is clicked
   const closeDropdown = () => setIsDropdownOpen(false);
 
   return (
     <nav className="bg-gray-900 border-b border-gray-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-4 py-3 lg:py-0 lg:h-16">
-          {/* Logo */}
           <Link
             href="/"
             className="text-xl lg:text-2xl font-bold text-purple-400 hover:text-purple-300 transition"
@@ -35,7 +33,6 @@ export default function Navbar() {
             Star-API
           </Link>
 
-          {/* Search Bar */}
           <div className="flex items-center space-x-4 flex-1 max-w-2xl w-full lg:mx-8">
             <form onSubmit={handleSearch} className="flex-1 w-full">
               <input
@@ -49,7 +46,6 @@ export default function Navbar() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 items-center relative">
-            {/* --- THE CENTERED DROPDOWN --- */}
             <div className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -65,7 +61,6 @@ export default function Navbar() {
                 </span>
               </button>
 
-              {/* The Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="absolute left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden flex flex-col">
                   <Link href="/galaxies" onClick={closeDropdown}>
@@ -91,22 +86,17 @@ export default function Navbar() {
                 </div>
               )}
             </div>
-            {/* --- END DROPDOWN --- */}
 
             <div className="h-6 w-px bg-gray-700 hidden lg:block"></div>
 
-            {/* Auth Buttons */}
             {user ? (
-              // IF LOGGED IN: Show Admin Dashboard AND Logout
               <div className="flex items-center gap-3">
-                {/* 1. The New Admin Page Button */}
                 <Link href="/admin">
                   <button className="px-4 py-2 text-sm font-bold text-emerald-400 border border-emerald-400/30 hover:bg-emerald-900/20 rounded-lg transition flex items-center gap-2">
                     <span>⚡</span> Dashboard
                   </button>
                 </Link>
 
-                {/* 2. Logout Button */}
                 <button
                   onClick={signOut}
                   className="px-4 py-2 text-sm font-bold text-red-400 border border-red-400/30 hover:bg-red-900/20 rounded-lg transition"
@@ -115,7 +105,6 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              // IF NOT LOGGED IN: Show Admin Login
               <Link href="/login">
                 <button className="px-4 py-2 text-sm font-bold text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition flex items-center gap-2">
                   <span>🔒</span> Admin

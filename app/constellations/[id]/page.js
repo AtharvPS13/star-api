@@ -2,11 +2,11 @@ import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ConstellationSystemSimulation from "@/components/ConstellationSystemSimulation";
+import { formatNumber } from "@/lib/formatNumber";
 
 export default async function ConstellationDetailPage({ params }) {
   const { id } = await params;
 
-  // Fetch specific constellation data
   const { data: constellation, error } = await supabase
     .from("constellation")
     .select(
@@ -40,9 +40,6 @@ export default async function ConstellationDetailPage({ params }) {
 
       <div className="max-w-4xl mx-auto">
         <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
-          {/* I increased height to h-96 so the 3D sim has room.
-             The Component now takes "stars={constellation.stars}" correctly.
-          */}
           <div className="h-96 relative overflow-hidden bg-gradient-to-br from-indigo-900 to-purple-800">
             <ConstellationSystemSimulation stars={constellation.stars} />
 
@@ -61,7 +58,6 @@ export default async function ConstellationDetailPage({ params }) {
               </p>
             )}
 
-            {/* Stars Section */}
             {constellation.stars && constellation.stars.length > 0 ? (
               <div className="mt-8">
                 <h2 className="text-2xl font-bold mb-4">
@@ -84,7 +80,7 @@ export default async function ConstellationDetailPage({ params }) {
                           {star.distance && (
                             <p>
                               <span className="text-gray-500">Distance:</span>{" "}
-                              {star.distance} light years
+                              {formatNumber(star.distance)} light years
                             </p>
                           )}
                         </div>
